@@ -7,97 +7,74 @@ fun main() {
     }
 
     fun part1(input: List<String>): Int {
-        val partNumbers = mutableListOf<Int>()
-        val n = input.size
-        val m = input[0].length
-        val map = Array(n) { CharArray(m) }
-        for ((i, line) in input.withIndex()) {
-            for ((j, c) in line.withIndex()) {
-                map[i][j] = c
-            }
-        }
+        val schematic = input.toCharMatrix()
+        val partNumbers = ArrayList<Int>()
 
-        for ((a, row) in map.withIndex()) {
-            var isPartNumber = false
-            var number = ""
-            for ((b, col) in row.withIndex()) {
-                when (col) {
-                    in '0'..'9' -> {
-                        number += col
-                        for (i in -1..1) for (j in -1..1) {
-                            val x = a + i
-                            val y = b + j
-                            if (x in 0..<n && y in 0..<m) if (map[x][y].isSymbol()) isPartNumber = true
-                        }
-                    }
-                    else -> {
-                        if (number.isNotEmpty() && isPartNumber) {
-                            partNumbers.add(number.toInt())
-                        }
-                        number = ""
-                        isPartNumber = false
-                    }
-                }
-            }
+        var number = ""
+        var isPartNumber = false
+
+        fun reset() {
             if (number.isNotEmpty() && isPartNumber) {
                 partNumbers.add(number.toInt())
             }
+            number = ""
+            isPartNumber = false
+        }
+
+        for ((i, row) in schematic.withIndex()) {
+            for ((j, char) in row.withIndex()) {
+                when (char) {
+                    in '0'..'9' -> {
+                        number += char
+                        if (schematic.adjacentTo(i, j).any { it.data.isSymbol() }) isPartNumber = true
+                    }
+                    else -> reset()
+                }
+            }
+            reset()
         }
 
         return partNumbers.sum()
     }
 
     fun part2(input: List<String>): Int {
-        val n = input.size
-        val m = input[0].length
-        val map = Array(n) { CharArray(m) }
-        for ((i, line) in input.withIndex()) {
-            for ((j, c) in line.withIndex()) {
-                map[i][j] = c
-            }
-        }
+        val schematic = input.toCharMatrix()
+        val gearPositions = HashSet<CharCell>()
+        val gearCandidates = HashMap<CharCell, MutableList<Int>>()
 
-        val gearPos = mutableSetOf<Pair<Int, Int>>()
-        val gears = mutableMapOf<Pair<Int, Int>, MutableList<Int>>()
-        for ((a, row) in map.withIndex()) {
-            var number = ""
-            for ((b, col) in row.withIndex()) {
-                when (col) {
-                    in '0'..'9' -> {
-                        number += col
-                        for (i in -1..1) for (j in -1..1) {
-                            val x = a + i
-                            val y = b + j
-                            if (x in 0..<n && y in 0..<m) {
-                                if (map[x][y] == '*') gearPos.add(x to y)
-                            }
-                        }
-                    }
-                    else -> {
-                        if (number.isNotEmpty()) {
-                            for (pos in gearPos) {
-                                gears.putIfAbsent(pos, mutableListOf())
-                                gears[pos]?.add(number.toInt())
-                            }
-                            number = ""
-                            gearPos.clear()
-                        }
-                    }
-                }
-            }
+        var number = ""
+
+        fun reset() {
             if (number.isNotEmpty()) {
-                for (pos in gearPos) {
-                    gears.putIfAbsent(pos, mutableListOf())
-                    gears[pos]?.add(number.toInt())
+                for (pos in gearPositions) {
+                    gearCandidates.putIfAbsent(pos, ArrayList())
+                    gearCandidates[pos]?.add(number.toInt())
                 }
-                gearPos.clear()
+                number = ""
+                gearPositions.clear()
             }
         }
 
-        println(gears)
-        val ans = gears.filter { (_, v) -> v.size == 2 }.map { (_, v) -> v.reduce { p1, p2 -> p1 * p2 } }.sum()
-        println(ans)
-        return ans
+        for ((i, row) in schematic.withIndex()) {
+            for ((j, char) in row.withIndex()) {
+                when (char) {
+                    in '0'..'9' -> {
+                        number += char
+                        gearPositions.addAll(schematic
+                            .adjacentTo(i, j)
+                            .filter { it.data == '*' }
+                            .toList())
+                    }
+                    else -> reset()
+                }
+            }
+            reset()
+        }
+
+        return gearCandidates
+            .map { it.value }
+            .filter { it.size == 2 }
+            .sumOf { it.product() }
     }
 
     // test if implementation meets criteria from the description, like:
