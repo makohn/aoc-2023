@@ -46,3 +46,14 @@ fun CharMatrix.adjacentTo(x: Int, y: Int) = buildList {
 }
 
 fun Iterable<Int>.product() = reduce { a, b -> a * b }
+
+tailrec fun gcd(a: Long, b: Long): Long {
+    if (b == 0L) return a
+    return gcd(b, a % b)
+}
+
+fun lcm(a: Long, b: Long): Long {
+    return a / gcd(a, b) * b
+}
+
+fun Iterable<Long>.lcm() = reduce { acc, i -> lcm(acc, i) }
