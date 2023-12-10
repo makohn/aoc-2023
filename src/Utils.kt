@@ -57,3 +57,48 @@ fun lcm(a: Long, b: Long): Long {
 }
 
 fun Iterable<Long>.lcm() = reduce { acc, i -> lcm(acc, i) }
+
+fun <N> bfs(startNode: N, adjacent: (N) -> List<N>): HashMap<N, Int> {
+
+    val queue = ArrayDeque<N>()
+    val visited = HashMap<N, Int>()
+
+    fun enqueue(node: N, distance: Int) {
+        if (node in visited) return
+        visited[node] = distance
+        queue += node
+    }
+
+    enqueue(startNode, 0)
+
+    while (queue.isNotEmpty()) {
+        val node = queue.removeFirst()
+        val distance = visited[node]!! + 1
+
+        for (otherNode in adjacent(node)) {
+            enqueue(otherNode, distance)
+        }
+    }
+
+    return visited
+}
+
+enum class Direction(val xDir: Int, val yDir: Int) {
+    North(0, -1),
+    West(-1, 0),
+    East(1, 0),
+    South(0, 1);
+
+    operator fun component1() = xDir
+    operator fun component2() = yDir
+}
+
+fun CharMatrix.adjacentTo(cell: CharCell, vararg dirs: Direction) = buildList {
+    val (n, m) = dimension
+    val (x, y, _) = cell
+    for ((j, i) in dirs) {
+        val xx = x + i
+        val yy = y + j
+        if (xx in 0..<n && yy in 0..<m) add(Cell(xx, yy, this@adjacentTo[xx][yy]))
+    }
+}
