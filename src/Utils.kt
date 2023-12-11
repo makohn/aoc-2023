@@ -102,3 +102,9 @@ fun CharMatrix.adjacentTo(cell: CharCell, vararg dirs: Direction) = buildList {
         if (xx in 0..<n && yy in 0..<m) add(Cell(xx, yy, this@adjacentTo[xx][yy]))
     }
 }
+
+fun <T> List<List<T>>.transpose(): List<List<T>> {
+    val result = (first().indices).map { mutableListOf<T>() }.toMutableList()
+    forEach { list -> result.zip(list).forEach { it.first.add(it.second) } }
+    return result
+}
