@@ -108,3 +108,17 @@ fun <T> List<List<T>>.transpose(): List<List<T>> {
     forEach { list -> result.zip(list).forEach { it.first.add(it.second) } }
     return result
 }
+
+fun CharMatrix.rotateClockwise(): CharMatrix {
+    val (n, m) = dimension
+    val rotated = Array(m) { CharArray(n) }
+    for (i in 0..<n) {
+        for (j in 0..<m) {
+            rotated[j][i] = this@rotateClockwise[n-i-1][j]
+        }
+    }
+    return rotated
+}
+
+fun CharMatrix.asString(separator: String = "\n") =
+    joinToString(separator) { it.joinToString("") }
