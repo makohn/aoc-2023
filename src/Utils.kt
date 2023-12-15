@@ -122,3 +122,7 @@ fun CharMatrix.rotateClockwise(): CharMatrix {
 
 fun CharMatrix.asString(separator: String = "\n") =
     joinToString(separator) { it.joinToString("") }
+
+fun <T> MutableList<T>.replaceIf(instead: T, predicate: (T) -> Boolean) {
+    this@replaceIf[this.indexOfFirst(predicate)] = instead
+}
