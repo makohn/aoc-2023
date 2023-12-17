@@ -2,6 +2,7 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
+import java.util.PriorityQueue
 
 /**
  * Reads lines from the given input txt file.
@@ -80,6 +81,32 @@ fun <N> bfs(startNode: N, adjacent: (N) -> List<N>): HashMap<N, Int> {
         }
     }
 
+    return visited
+}
+
+fun <N> dijkstra(start: N, adjacent: (N) -> List<Pair<N, Int>>): HashMap<N, Int> {
+
+    val queue = PriorityQueue<Pair<Int, N>>(compareBy{ it.first })
+    val visited = HashMap<N, Int>()
+
+    fun enqueue(node: N, distance: Int) {
+        if (node !in visited || distance < visited[node]!!) {
+            visited[node] = distance
+            queue += distance to node
+        }
+    }
+
+    enqueue(start, 0)
+
+    while (queue.isNotEmpty()) {
+        val (cost, node) = queue.remove()
+        if (cost <= visited[node]!!) {
+            for ((otherNode, weight) in adjacent(node)) {
+                val distance = cost + weight
+                enqueue(otherNode, distance)
+            }
+        }
+    }
     return visited
 }
 
