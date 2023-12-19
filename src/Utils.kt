@@ -3,11 +3,17 @@ import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
 import java.util.PriorityQueue
+import kotlin.io.path.readText
 
 /**
  * Reads lines from the given input txt file.
  */
 fun readInput(name: String) = Path("src/$name.txt").readLines()
+
+/**
+ * Reads a string from the given input txt file.
+ */
+fun readInputString(name: String) = Path("src/$name.txt").readText()
 
 /**
  * Converts string to md5 hash.
@@ -153,3 +159,5 @@ fun CharMatrix.asString(separator: String = "\n") =
 fun <T> MutableList<T>.replaceIf(instead: T, predicate: (T) -> Boolean) {
     this@replaceIf[this.indexOfFirst(predicate)] = instead
 }
+
+fun String.numbers() = Regex("\\d+").findAll(this).map { it.value.toInt() }.toList()
