@@ -136,6 +136,16 @@ fun CharMatrix.adjacentTo(cell: CharCell, vararg dirs: Direction) = buildList {
     }
 }
 
+fun CharMatrix.adjacentToUnbound(cell: CharCell, vararg dirs: Direction) = buildList {
+    val (n, m) = dimension
+    val (x, y, _) = cell
+    for ((j, i) in dirs) {
+        val xx = x + i
+        val yy = y + j
+        add(Cell(xx, yy, this@adjacentToUnbound[xx fmod n][yy fmod m]))
+    }
+}
+
 fun <T> List<List<T>>.transpose(): List<List<T>> {
     val result = (first().indices).map { mutableListOf<T>() }.toMutableList()
     forEach { list -> result.zip(list).forEach { it.first.add(it.second) } }
@@ -161,3 +171,5 @@ fun <T> MutableList<T>.replaceIf(instead: T, predicate: (T) -> Boolean) {
 }
 
 fun String.numbers() = Regex("\\d+").findAll(this).map { it.value.toInt() }.toList()
+
+infix fun Int.fmod(base: Int) = ((this % base) + base) % base
