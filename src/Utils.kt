@@ -172,4 +172,6 @@ fun <T> MutableList<T>.replaceIf(instead: T, predicate: (T) -> Boolean) {
 
 fun String.numbers() = Regex("\\d+").findAll(this).map { it.value.toInt() }.toList()
 
+operator fun <T> List<T>.component6() = get(5)
+
 infix fun Int.fmod(base: Int) = ((this % base) + base) % base
