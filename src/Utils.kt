@@ -31,6 +31,8 @@ typealias CharMatrix = Array<CharArray>
 fun List<String>.toCharMatrix() = Array(size) { idx -> get(idx).toCharArray() }
 val CharMatrix.dimension get() = size to get(0).size
 
+fun CharMatrix.toCharCells() = flatMapIndexed { i, row -> row.mapIndexed { j, col -> CharCell(i, j, col)  } }
+
 data class Cell<T>(val x: Int, val y: Int, val data: T)
 
 typealias CharCell = Cell<Char>
