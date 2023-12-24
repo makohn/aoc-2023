@@ -172,7 +172,90 @@ fun <T> MutableList<T>.replaceIf(instead: T, predicate: (T) -> Boolean) {
     this@replaceIf[this.indexOfFirst(predicate)] = instead
 }
 
+open class Matrix(
+    private val rows: Int,
+    private val cols: Int,
+    val data: DoubleArray = DoubleArray(rows * cols) { 0.0 }
+) {
+
+    operator fun times(other: Matrix): Matrix {
+        check(this.cols == other.rows)
+
+        val size = this.rows * other.cols
+        val res = DoubleArray(size)
+
+        for (i in 0..<this.rows) {
+            for (j in 0..<other.cols) {
+                var sum = 0.0
+                for (k in 0..<this.cols) {
+                    sum += this.data[i * this.cols + k] * other.data[k * other.cols + j]
+                }
+                res[i * other.cols + j] = sum
+            }
+        }
+        return Matrix(this.rows, other.cols, res)
+    }
+
+    override fun toString() = buildString {
+        for (i in 0..<rows) {
+            for (j in 0..<cols) {
+                append(data[i + j]).append(" ")
+            }
+            append("\n")
+        }
+    }
+}
+
+class Matrix4x4(data: DoubleArray = DoubleArray(16) { 0.0 }): Matrix(4, 4, data) {
+
+    fun inverse(): Matrix4x4 {
+
+        fun valueAt(ii: Int, jj: Int): Double {
+            val o = 2+(jj-ii)
+            val i = ii + 4 + o
+            val j = jj + 4 - o
+
+            val e = { a: Int, b: Int -> data[ ((j+b)%4)*4 + ((i+a)%4) ]}
+
+            val inv = e(+1,-1)*e(+0,+0)*e(-1,+1) +
+                    e(+1,+1)*e(+0,-1)*e(-1,+0) +
+                    e(-1,-1)*e(+1,+0)*e(+0,+1) -
+                    e(-1,-1)*e(+0,+0)*e(+1,+1) -
+                    e(-1,+1)*e(+0,-1)*e(+1,+0) -
+                    e(+1,-1)*e(-1,+0)*e(+0,+1)
+
+            return if (o%2 == 0) inv else -inv
+        }
+
+        val inv = DoubleArray(16)
+
+        for (i in 0..<4) {
+            for (j in 0..<4) {
+                inv[j*4+i] = valueAt(i, j)
+            }
+        }
+
+        var d = 0.0
+        for (k in 0..<4) d += data[k] * inv[k*4]
+
+        d = 1.0 / d
+
+        for (i in 0..<16) inv[i] *= d
+
+        return Matrix4x4(inv)
+    }
+}
+
+fun <T> List<T>.combinations() = sequence {
+    for (i in this@combinations.indices) {
+        for (j in i+1 ..< size) {
+            yield(get(i) to get(j))
+        }
+    }
+}
+
 fun String.numbers() = Regex("\\d+").findAll(this).map { it.value.toInt() }.toList()
+fun String.numbersAsDouble() = Regex("-?\\d+").findAll(this).map { it.value.toDouble() }.toList()
 
 operator fun <T> List<T>.component6() = get(5)
 
